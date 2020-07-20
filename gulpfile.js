@@ -8,13 +8,14 @@ var serveStatic = require('serve-static');
 const proxy =  require('proxy-middleware');
 const url = require('url');
 const browserSync = require('browser-sync');
-const {setCompression, setHeaders, setHost, setBody} =  require('./local.middlewares');
+const {setCompression, setHeaders, setHost, setBody, setReferer} =  require('./local.middlewares');
 
 
 /******************************************
 ************** TASKS **********************
 *******************************************/
 const csstasks = require('./css.tasks');
+const filetasks = require('./files.tasks');
 
 /******************************************
 ************** CONFIG HOSTS ***************
@@ -31,9 +32,15 @@ $_PROXY_CONFIG.cookieRewrite = `${pkg.accountName}.vtexlocal.com.br`;
 function watchFiles(){
     watch('./src/**/*.css',function(done){
        csstasks();
-       browserSync.reload();
+       browserSync.reload()
        done();
     });
+
+    watch(['./src/**/*.html','./src/**/*.js'],function(done){
+        filetasks();
+        browserSync.reload()
+        done();
+     });
 }
 
 /******************************************
@@ -50,12 +57,11 @@ function myServer(){
             setCompression,
             setHeaders,
             setHost,
-            setBody(pkg.accountName),
+            setBody(),
             serveStatic('./build'),
             proxy($_PROXY_CONFIG),
         ],
     })
-    console.log('SERVIDOR INICIADO');
 }
 
 exports.default = parallel(
