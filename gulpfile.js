@@ -3,61 +3,67 @@
 /******************************************
 ******** SERVER DEPENDENCIES **************
 *******************************************/
-const { watch, parallel} = require('gulp');
+const { watch, parallel, series } = require('gulp');
 var serveStatic = require('serve-static');
-const proxy =  require('proxy-middleware');
+const proxy = require('proxy-middleware');
 const url = require('url');
 const browserSync = require('browser-sync');
-const {setCompression, setHeaders, setHost, setBody, setReferer} =  require('./local.middlewares');
+const { setCompression, setHeaders, setHost, setBody } = require('./local.middlewares');
 
 
 /******************************************
-************** TASKS **********************
-*******************************************/
-const csstasks = require('./css.tasks');
-const filetasks = require('./files.tasks');
+ ************** TASKS **********************
+ *******************************************/
+const { copyAll, css, commomScripts, scss, scssProd, commomScriptsProd } = require('./tasks');
+
 
 /******************************************
 ************** CONFIG HOSTS ***************
 *******************************************/
+
 const pkg = require('./package.json')
 const $_HOST = `${pkg.accountName}.vtexcommercestable.com.br`;
-const  $_PROXY_CONFIG = url.parse(`https://${$_HOST}/`)
+const $_PROXY_CONFIG = url.parse(`https://${$_HOST}/`)
 $_PROXY_CONFIG.preserveHost = true;
 $_PROXY_CONFIG.cookieRewrite = `${pkg.accountName}.vtexlocal.com.br`;
 
 /******************************************
-************** SERVER INIT ****************
-*******************************************/
-function watchFiles(){
-    watch('./src/**/*.css',function(done){
-       csstasks();
-       browserSync.reload()
-       done();
+ ************** SERVER INIT ****************
+ *******************************************/
+function watchFiles() {
+    watch('./src/**/*.css', function(done) {
+        copyAll();
+        done();
     });
 
-    watch(['./src/**/*.html','./src/**/*.js'],function(done){
-        filetasks();
+    watch('./src/**/*.scss', function(done) {
+        scss();
         browserSync.reload()
         done();
-     });
+    });
+    watch(['./src/**/*.html', './src/**/*.js'], function(done) {
+        copyAll();
+        commomScripts();
+        browserSync.reload()
+        done();
+    });
 }
-
 /******************************************
-************** SERVER INIT ****************
-*******************************************/
-function myServer(){
+ ************** SERVER INIT ****************
+ *******************************************/
+function myServer() {
     browserSync.init({
         host: `${pkg.accountName}.vtexlocal.com.br`,
-        port:80,
-        server:'./src',
-        watch:true,
-        open:'external',
+        port: 443,
+        https: true,
+        server: './src',
+        watch: true,
+        open: 'external',
         middleware: [
             setCompression,
             setHeaders,
             setHost,
-            setBody(),
+            setBody,
             serveStatic('./build'),
             proxy($_PROXY_CONFIG),
         ],
@@ -65,6 +71,16 @@ function myServer(){
 }
 
 exports.default = parallel(
-    myServer, 
+    myServer,
+    copyAll,
+    css,
+    scss,
+    commomScripts,
     watchFiles,
+)
+
+exports.build = series(
+    css,
+    scssProd,
+    commomScriptsProd
 )

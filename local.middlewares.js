@@ -5,7 +5,7 @@ const { accountName } = require('./package.json')
 
 function rewriteLocation(location) {
     return location
-        .replace('https:', 'http:')
+        // .replace('http:', 'https:')
         .replace(`${accountName}.vtexcommercestable.com.br`, `${accountName}.vtexlocal.com.br`)
 }
 
@@ -38,7 +38,7 @@ function setBody(req, res, next) {
         if (data) {
             data = data.replace(/vtexcommercestable/g, "vtexlocal");
             data = data.replace(/vteximg/g, "vtexlocal");
-            data = data.replace(/https/g, 'http');
+            // data = data.replace(/http/g, 'https');
         }
 
 
@@ -61,7 +61,7 @@ function setBody(req, res, next) {
 function setCompression(req, res, next) {
     //middlware 1
     req.headers['accept-encoding'] = 'identity';
-    next();
+    next()
 }
 
 
@@ -80,7 +80,7 @@ function setHeaders(req, res, next) {
 function setHost(req, res, next) {
     //middlware 3
     req.headers.host = `${accountName}.vtexcommercestable.com.br`;
-    next();
+    next()
 }
 
 module.exports = {
