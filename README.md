@@ -41,5 +41,7 @@ Suportado atualmente:
 
 - LiveReload
 - Css minify
+- JS Bundler
 - Autoprefixer
+- Sass
 
