@@ -16,7 +16,7 @@
         "@babel/preset-env": "^7.11.5",
         "@babel/preset-es2015": "^7.0.0-beta.53",
         "browser-sync": "^2.26.7",
-        "browserslist": "^4.12.2",
+        "browserslist": "^4.16.5",
         "gulp": "^4.0.2",
         "gulp-autoprefixer": "^7.0.1",
         "gulp-babel": "^8.0.0",
